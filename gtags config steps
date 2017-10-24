@@ -1,0 +1,19 @@
+sudo apt install emacs24-nox
+wget http://tamacom.com/global/global-6.5.7.tar.gz
+tar xvf global-6.5.7.tar.gz
+sudo apt-get install ctags
+cd global-6.5.7
+sudo apt-get install libncurses5-dev libncursesw5-dev
+./configure --with-exuberant-ctags=/usr/bin/ctags
+make
+sudo make install
+
+wget https://raw.githubusercontent.com/Schnouki/dotfiles/master/globalrc
+mv globalrc ~/.globalrc
+echo export GTAGSLABEL=pygments >> ~/.bashrc
+. ~/.bashrc
+
+melpa install helm-gtags
+
+find . -name '*.py' >/tmp/list
+gtags -f /tmp/list
