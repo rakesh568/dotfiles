@@ -1,62 +1,26 @@
-;; rranjan568 .emacs file.
+(keyboard-translate ?\C-h ?\C-?)
 
-;;(setq font-lock-support-mode 'jit-lock-mode)
-;;(require 'font-lock)
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
+(require 'package) ;; You might already have this line
+(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                    (not (gnutls-available-p))))
+       (url (concat (if no-ssl "http" "https") "://melpa.org/packages/")))
+  (add-to-list 'package-archives (cons "melpa" url) t))
+(when (< emacs-major-version 24)
+  ;; For important compatibility libraries like cl-lib
+  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
+(package-initialize) ;; You might already have this line
 
-(add-to-list 'load-path "/home/rranjan/.emacs.d/custom")
-
-;;dark emacs
-(load-file "~/.emacs.d/custom/zenburn-theme.el")
-
+ 
 (add-to-list 'default-frame-alist '(alpha 85 85))
 
-;;(set-face-attribute 'default nil :background "black"
-;;  :foreground "white" :font "Courier" :height 180)
-
-;;xscope
-(load-file "/usr/share/emacs/site-lisp/xcscope.el")
-(require 'xcscope)
-;;(setq cscope-do-not-update-database t)
-
-;;etags
-(defun create-tags (dir-name)
-     "Create tags file."
-     (interactive "DDirectory: ")
-     (eshell-command 
-     (format "find %s -name "*.[ch]" -print | xargs etags -a" dir-name)))
-
-
-;;uniquify for file names with path on bottom
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'forward)
-
-;; show full path on top
-(setq frame-title-format
-      (list (format "%s %%S: %%j " (system-name))
-        '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
-
-;;match parantheses
 (show-paren-mode 1)
 
-
-
-;;file associations
-(push '("\\.cli\\'" .  tcl-mode) auto-mode-alist)
-(push '("\\.obj\\'" .  c-mode) auto-mode-alist)
-
-;;smooth scrolling
 (setq redisplay-dont-pause t
   scroll-margin 1
   scroll-step 1
   scroll-conservatively 10000
   scroll-preserve-screen-position 1)
 
-;;copying from emacs to clipboard
-;;(setq x-select-enable-clipboard t)
-
-;;auto sync files
 (global-auto-revert-mode t)
 
 ;;Change yes-or-no to y-or-n
@@ -74,60 +38,21 @@
 (global-linum-mode t)
 (setq linum-format "%d ")
 
+
 ;;dont exit emacs mistakely
 ;;(global-set-key "\C-x\C-c" nil)
 (global-set-key "\C-z" nil)
-;;tab width related....copied from shankara
-  (setq-default default-tab-width 4)
-  (setq-default tab-width 4)
-  (setq indent-tabs-mode nil)
 
 ;;buffer menu...better than buffer list, gives more otions to do with buffers
 (global-set-key "\C-x\C-b" 'buffer-menu)
 
-;;maximized emacs window on startup
-;;(set-frame-position (selected-frame) 0 0)
-;;(et-frame-size (selected-framse) 237 5)5
-;;auto-completion on pressing tabs
-;;(require 'bash-completion)
-;;  (bash-completion-setup)
-
-;;emacs bash completion
-
-;;  (require 'bash-completion)
-;;  (bash-completion-setup)
-
-;; custom debug command
-(defun insert-printf ()
-  (interactive)
-  (insert "fprintf(stderr, \"rakesh: %s %d\\n\",__FUNCTION__,__LINE__);"))
-  (global-set-key "\M-p" 'insert-printf)
-
-
-;;load the etags-select.el source code
-(load-file "/home/rranjan/.emacs.d/custom/etags-select.el")
-(global-set-key "\M-." 'etags-select-find-tag-at-point)
-(global-set-key "\M-?" 'etags-select-find-tag)
-;;for setting tags table location
-(global-set-key "\M-t" 'visit-tags-table)
-
-;; commenting n uncommenting
-;;(global-set-key "\C-cc" 'comment-region)
-;;(global-set-key "\C-cu" 'uncomment-region)
 (defun toggle-comment-on-line ()
   "comment or uncomment current line"
   (interactive)
   (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
   (global-set-key (kbd "M-SPC") 'toggle-comment-on-line)
 
-;;back from etags
-(global-set-key "\C-q" 'pop-tag-mark)
-
-;;back from cscope
-(global-set-key "\M-q" 'cscope-pop-mark)
-
-;;custom rgdb command
-(setq gdb-command-name "/sbox/rranjan/<branch>/tools/debug/rgdb <switchip> <process>")
+(setq uniquify-buffer-name-style 'forward)
 
 ;;highlight symbol
 (require 'highlight-symbol)
@@ -139,36 +64,8 @@
 ;;change tab
 (global-set-key "\C-t" 'other-window)
 
-;;(require 'etags-table)
-;;(setq tag-table-alist
-;;      '(("./" . "./")
-;;        ("./" . "./../")
-;;))
-;;(setq etags-table-alist tag-table-alist)
-;;(setq etags-table-search-up-depth 10)
-;;(setq tags-table-list '("./TAGS" "../TAGS" "../../TAGS" "../../../TAGS" "../../../../TAGS" "../../../../../TAGS" "../../../../../../TAGS" "../../../../../../../TAGS"))
-
-
-
-;;(defadvice find-tag (before c-tag-file activate)
-;;   "Automatically create tags file."
-;;   (let ((tag-file (concat default-directory "TAGS")))
-;;     (unless (file-exists-p tag-file)
-;;       (shell-command "etags *.[ch] -o TAGS 2>/dev/null"))
-;;     (visit-tags-table tag-file)))
-
 ;;rgrep
 (global-set-key "\M-r" 'rgrep)
-
-;;manpage
-(global-set-key "\M-m" 'man)
-
-;;cscope make writeable
-(setq cscope-allow-arrow-overlays nil)
-(global-set-key "\M-a" 'cscope-find-global-definition)
-(global-set-key "\M-d" 'cscope-find-functions-calling-this-function)
-(global-set-key "\M-s" 'cscope-find-this-symbol)
-
 
 
 (global-set-key "\M-b" 'match-paren)
@@ -180,4 +77,54 @@
         ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
         (t (self-insert-command (or arg 1)))))
 
+
+
+;;(require 'setup-ggtags)
+(require 'xcscope)
+(setq cscope-allow-arrow-overlays nil)
+(global-set-key "\M-a" 'cscope-find-global-definition)
+(global-set-key "\M-d" 'cscope-find-functions-calling-this-function)
+(global-set-key "\M-s" 'cscope-find-this-symbol)
+
+
+;;back from etags
+(global-set-key "\C-q" 'pop-tag-mark)
+
+;;back from cscope
+(global-set-key "\M-q" 'cscope-pop-mark)
+
+;(split-window-right)
+
+;;(setq split-height-threshold nil)
+;;(setq split-width-threshold 60)
+(setq split-height-threshold nil
+      split-width-threshold nil)
+
+;;(load-file "~/.emacs.d/helm-gtags.el")
+(require 'helm-gtags)
+(setq
+  helm-gtags-ignore-case t
+  helm-gtags-auto-update t
+  helm-gtags-use-input-at-cursor t
+  helm-gtags-pulse-at-cursor t
+  helm-gtags-prefix-key "\C-cg"
+  helm-gtags-suggested-key-mapping t
+  )
+  
+ (add-hook 'python-mode-hook 'helm-gtags-mode)
+ 
+ (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
+ (define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
+ (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
+ (define-key helm-gtags-mode-map (kbd "C-q") 'helm-gtags-pop-stack)
+ (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+ (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history)
+
+;;(require 'indent-guide)
+;;(indent-guide-global-mode t)
+;;(setq indent-guide-recursive t)
+
+(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+(setq highlight-indent-guides-method 'character)
+(setq highlight-indent-guides-character ?\|)
 
